@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
+import json
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -73,13 +75,29 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+def get_db_details():
+    val = os.environ.get('DJANGO_SECRET')
+    if val:
+        return json.loads(val)
+    return {
+        "password":"",
+        "dbname":"django_deploy",
+        "port":5432,
+        "host":"127.0.0.1",
+        "username":"aash"
+    }
+_DB = get_db_details()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': _DB['dbname'],
+        'USER': _DB["username"],
+        'PASSWORD': _DB["password"],
+        'HOST': _DB["host"],
+        'PORT': _DB["port"],
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
